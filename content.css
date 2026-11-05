@@ -1,0 +1,200 @@
+/* ════════════════════════════════════════════════════════════════
+   HITSS Tickets — Estilos Inyectados en Laraigo (Content UI)
+   Diseño ultra-pulcro, moderno y no invasivo
+   ════════════════════════════════════════════════════════════════ */
+
+/* Botón flotante disparador (Floating Action Button) */
+#hitss-laraigo-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 24px;
+  z-index: 2147483640;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #7c3aed, #db2777);
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: grab;
+  user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+#hitss-laraigo-fab:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.55), 0 4px 10px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, #6d28d9, #e11d48);
+}
+
+#hitss-laraigo-fab:active {
+  cursor: grabbing;
+  transform: scale(0.97);
+}
+
+#hitss-laraigo-fab .fab-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+#hitss-laraigo-fab .fab-badge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+  animation: hitssFabPulse 2s infinite;
+}
+
+@keyframes hitssFabPulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+/* Contenedor del Drawer / Panel Flotante */
+#hitss-laraigo-panel-wrapper {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  bottom: 18px;
+  width: 480px;
+  max-width: calc(100vw - 36px);
+  z-index: 2147483645;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  background: #0f172a;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(30px) scale(0.98);
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#hitss-laraigo-panel-wrapper.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0) scale(1);
+}
+
+#hitss-laraigo-panel-wrapper.is-expanded {
+  width: 680px;
+}
+
+/* Barra superior de control del Drawer */
+.hitss-panel-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #1e293b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: default;
+}
+
+.hitss-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hitss-panel-title .badge-online {
+  font-size: 10px;
+  font-weight: 500;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+
+.hitss-panel-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hitss-panel-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.hitss-panel-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.hitss-panel-btn.btn-close:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+/* Iframe que aloja la app */
+#hitss-laraigo-iframe {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+}
+
+/* Toast de notificación flotante inyectado en Laraigo */
+#hitss-laraigo-toast {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  z-index: 2147483647;
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#hitss-laraigo-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#hitss-laraigo-toast .toast-icon {
+  font-size: 18px;
+}

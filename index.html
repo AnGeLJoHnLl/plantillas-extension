@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de plantillas</title>
+  <meta name="description" content="Generador de plantillas de tickets HITSS Mesa Multiskill." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" id="appFavicon" />
+  <link rel="stylesheet" href="styles.css?v=20261101_reindeer_gallop" />
+  <link rel="stylesheet" href="cropper.min.css" />
+  <script src="extension-bootstrap.js"></script>
+</head>
+<body>
+
+  <!-- ═══ MODAL DE AUTENTICACIÓN CIFRADA ═══ -->
+  <div id="authModal" class="auth-modal-overlay">
+    <div class="auth-card" id="authCard">
+      <div class="auth-gengar-wrap" id="authGengarWrap">
+        <img src="gengar-lock.gif" alt="Gengar" class="auth-gengar-gif" id="authGengarGif" />
+      </div>
+      <h2 class="auth-title" id="authTitle">Acceso Protegido</h2>
+      
+      <!-- Barra de progreso animada para carga -->
+      <div id="authLoadingBar" class="auth-loading-bar hidden">
+        <div class="auth-loading-progress" id="authLoadingProgress"></div>
+      </div>
+      <p id="authSubtitle" class="auth-subtitle hidden"></p>
+      
+      <form id="authForm" onsubmit="event.preventDefault(); intentarLogin();" class="auth-form-compact">
+        <div class="auth-pass-wrap">
+          <input type="password" id="authPassInput" placeholder="Contraseña..." autocomplete="current-password" autofocus />
+          <button type="button" class="auth-eye-btn" data-onclick="toggleAuthPassEye()" title="Ver contraseña">👁</button>
+        </div>
+        
+        <div id="authFeedback" class="auth-feedback hidden"></div>
+        
+        <button type="submit" id="btnAuthSubmit" class="btn-auth-submit">
+          <span>Ingresar</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <div class="logo-icon" title="HITSS Mesa Multiskill">
+          <svg viewBox="0 0 64 64" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 14 C19 12.895 19.895 12 21 12 H43 C44.105 12 45 12.895 45 14 V26 C42.791 26 41 27.791 41 30 C41 32.209 42.791 34 45 34 V50 C45 51.105 44.105 52 43 52 H21 C19.895 52 19 51.105 19 50 V34 C21.209 34 23 32.209 23 30 C23 27.791 21.209 26 19 26 Z" fill="#ffffff"/>
+            <path d="M21 12 H43 C44.105 12 45 12.895 45 14 V19 H19 V14 C19 12.895 19.895 12 21 12 Z" fill="rgba(0,0,0,0.15)"/>
+            <path d="M34 16 L25 29 H32 L29 44 L40 28 H33 Z" fill="currentColor"/>
+            <circle cx="25" cy="47" r="1.8" fill="currentColor"/>
+            <circle cx="32" cy="47" r="1.8" fill="currentColor"/>
+            <circle cx="39" cy="47" r="1.8" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="app-title">GENERADOR DE PLANTILLAS</div>
+      </div>
+      <div class="header-right-tools">
+        <!-- User Profile Pill -->
+        <div class="user-profile-pill" data-onclick="openUserProfileModal()" title="Configurar Asesor">
+          <div class="user-avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="user-info-text">
+            <span class="user-name" id="hdrUserName">Configurar Asesor</span>
+            <span class="user-code" id="hdrUserCode"></span>
+          </div>
+          <span class="user-chevron">▾</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ QUICK LINKS BAR ═══ -->
+  <div class="quick-links-bar">
+    <div class="ql-items">
+      <!-- Copiar al portapapeles -->
+      <button class="ql-btn" id="ql-148"
+              data-onclick="quickCopy(this, 'https://claro360.com/plataforma360/Peru/soporte_remoto')"
+              title="Soporte Remoto Claro360 — Clic para COPIAR link">
+        <span class="ql-num">148</span>
+      </button>
+
+      <!-- Abrir directo en nueva pestaña -->
+      <a href="https://claro360.com/plataforma360/login" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir 360">
+        <span class="ql-num">360</span>
+      </a>
+
+      <a href="https://claro.laraigo.com/message_inbox" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Laraigo">
+        <span class="ql-num">LARAIGO</span>
+      </a>
+
+      <a href="https://amx-peru.fs.ocs.oraclecloud.com/" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir TOA">
+        <span class="ql-num">TOA</span>
+      </a>
+
+      <a href="http://172.17.51.6/sac/Login_input" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Incognito">
+        <span class="ql-num">INCOGNITO</span>
+      </a>
+
+      <a href="http://prov.incognito.claro.com.pe/sac/" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Incognito Prov">
+        <span class="ql-num">INCOGNITO PROV</span>
+      </a>
+
+      <a href="https://10.189.8.188:28090/service-cloud/aicc-web/index/index.html#/ManualAppointWorkbenchDetails?taskId=1061244585&orgId=1752727161880235604&appointId=175435461525835224677465120200&eventType=AgentEvent_Customer_Release&updateCallId=1754354624-11840&isFirst=true&AgentEvent_Call_Out_Fail=true" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir AICC">
+        <span class="ql-num">AICC</span>
+      </a>
+
+      <a href="https://maps.geodir.co/bravo-maps" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Geodir">
+        <span class="ql-num">GEODIR</span>
+      </a>
+
+      <a href="https://172.19.90.243/portalfactibilidad/public/login" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Portal de Factibilidad">
+        <span class="ql-num">FACTIBILIDAD</span>
+      </a>
+
+      <a href="https://gamma.central.plume.com/" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Plume">
+        <span class="ql-num">PLUME</span>
+      </a>
+
+      <a href="https://www.skywayplatform.com/skyway-platform/login?tenantCode=1086&backUrl=%252Ftms%252Fmanagement%252Fdevice%253Fsn%253DZTEATV45502943796" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Skyway">
+        <span class="ql-num">SKYWAY</span>
+      </a>
+
+      <a href="https://jsystem2018.github.io/Verificador-nivel/" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Multigestión">
+        <span class="ql-num">MULTIGESTION</span>
+      </a>
+
+      <a href="http://prov.incognito.claro.com.pe/portalRestSac/CMTS/CMTS_INDEX.html" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir Alinear CMTS">
+        <span class="ql-num">ALINEAR CMTS</span>
+      </a>
+
+      <a href="https://gestorsisef.claro.pe/ords/r/ws_srvfija/srvfija/control-planos?session=22785531277179" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir SISEF">
+        <span class="ql-num">SISEF</span>
+      </a>
+
+      <a href="https://host.globalhitss.com/" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir HOST">
+        <span class="ql-num">HOST</span>
+      </a>
+
+      <a href="http://intranetces.tim.com.pe/" target="_blank" rel="noopener noreferrer" class="ql-btn ql-link" title="Abrir CES">
+        <span class="ql-num">CES</span>
+      </a>
+    </div>
+
+    <!-- Botones Rápidos Modos Especiales (Halloween & Navidad) & Selector de Temas -->
+    <div class="theme-dropdown-wrap" style="display:flex; align-items:center; gap:0.45rem;">
+      <button type="button" class="btn-quick-halloween" id="btnQuickHalloween" data-onclick="toggleHalloweenMode()" title="Activar / Desactivar Modo Halloween 🎃">
+        <span class="hw-btn-pumpkin">🎃</span>
+        <span class="hw-btn-label">Halloween</span>
+      </button>
+      <button type="button" class="btn-quick-xmas" id="btnQuickXmas" data-onclick="toggleChristmasMode()" title="Activar / Desactivar Modo Navideño 🎄">
+        <span class="xmas-btn-tree">🎄</span>
+        <span class="xmas-btn-label">Navidad</span>
+      </button>
+      <button type="button" class="btn-theme-dropdown" id="btnThemeDropdown" data-onclick="toggleThemeMenu(event)" title="Cambiar tema de color">
+        <span class="theme-btn-icon">🎨</span>
+        <span class="theme-btn-text">Tema</span>
+        <span class="theme-caret">▾</span>
+      </button>
+      <div id="themeDropdownMenu" class="theme-dropdown-menu hidden">
+        <div class="theme-menu-title">TEMAS DE INTERFAZ</div>
+        <div class="theme-options-list">
+          <div class="theme-section-label">🌟 Festivos & Especiales</div>
+          <button type="button" class="theme-opt-btn theme-opt-xmas" data-onclick="setAppTheme('christmas')">
+            <span class="theme-swatch swatch-christmas">🎄</span>
+            <span class="theme-opt-name">Modo Navideño</span>
+            <span class="theme-active-tag" id="badge-christmas">Activo</span>
+          </button>
+          <button type="button" class="theme-opt-btn theme-opt-halloween" data-onclick="setAppTheme('halloween')">
+            <span class="theme-swatch swatch-halloween">🎃</span>
+            <span class="theme-opt-name">Modo Halloween</span>
+            <span class="theme-active-tag" id="badge-halloween">Activo</span>
+          </button>
+
+          <div class="theme-section-label" style="margin-top:0.4rem;">☀️ Temas Claros</div>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('pink')">
+            <span class="theme-swatch swatch-pink"></span>
+            <span class="theme-opt-name">Tono Shyrley</span>
+            <span class="theme-active-tag" id="badge-pink">Activo</span>
+          </button>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('purple-light')">
+            <span class="theme-swatch swatch-purple-light"></span>
+            <span class="theme-opt-name">Morado Claro</span>
+            <span class="theme-active-tag" id="badge-purple-light">Activo</span>
+          </button>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('red-light')">
+            <span class="theme-swatch swatch-red-light"></span>
+            <span class="theme-opt-name">Rojo Claro</span>
+            <span class="theme-active-tag" id="badge-red-light">Activo</span>
+          </button>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('cyan-light')">
+            <span class="theme-swatch swatch-cyan-light"></span>
+            <span class="theme-opt-name">Cian Claro</span>
+            <span class="theme-active-tag" id="badge-cyan-light">Activo</span>
+          </button>
+
+          <div class="theme-section-label" style="margin-top:0.4rem;">🌙 Temas Oscuros</div>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('pink-dark')">
+            <span class="theme-swatch swatch-pink-dark"></span>
+            <span class="theme-opt-name">Rosa Oscuro</span>
+            <span class="theme-active-tag" id="badge-pink-dark">Activo</span>
+          </button>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('purple-dark')">
+            <span class="theme-swatch swatch-purple-dark"></span>
+            <span class="theme-opt-name">Morado Oscuro</span>
+            <span class="theme-active-tag" id="badge-purple-dark">Activo</span>
+          </button>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('red-dark')">
+            <span class="theme-swatch swatch-red-dark"></span>
+            <span class="theme-opt-name">Rojo Oscuro</span>
+            <span class="theme-active-tag" id="badge-red-dark">Activo</span>
+          </button>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('cyan-dark')">
+            <span class="theme-swatch swatch-cyan-dark"></span>
+            <span class="theme-opt-name">Cian Oscuro</span>
+            <span class="theme-active-tag" id="badge-cyan-dark">Activo</span>
+          </button>
+          <button type="button" class="theme-opt-btn" data-onclick="setAppTheme('purple')">
+            <span class="theme-swatch swatch-purple"></span>
+            <span class="theme-opt-name">Púrpura (Original)</span>
+            <span class="theme-active-tag" id="badge-purple">Activo</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <span class="ql-feedback hidden" id="qlFeedback">Copiado</span>
+  </div>
+
+  <!-- ═══ WRAPPER ═══ -->
+  <div class="app-wrapper">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <span class="sidebar-title">SECCIONES</span>
+        <div class="sidebar-top-actions">
+          <button type="button" id="btnBorrarTodasTop" class="btn-borrar-todas-top hidden" data-onclick="borrarTodasLasSot()" title="Borrar todas las SOT acumuladas">🗑️</button>
+          <button class="btn-nueva-sot-top" data-onclick="nuevaSeccion()" title="Nueva SOT">+ Nueva SOT</button>
+        </div>
+      </div>
+      <div id="sectionsList" class="sections-list"></div>
+      <div class="sidebar-bottom">
+        <button type="button" class="btn-nueva-sot-bottom" data-onclick="nuevaSeccion()">+ Nueva SOT</button>
+        <button type="button" id="btnBorrarTodasSot" class="btn-borrar-todas-sot hidden" data-onclick="borrarTodasLasSot()" title="Eliminar todas las SOT acumuladas">🗑️ Borrar todas las SOT</button>
+      </div>
+    </aside>
+
+    <!-- ── MAIN ── -->
+    <main class="main-content" id="mainContent">
+
+      <!-- Topbar -->
+      <div class="section-topbar" id="sectionTopbar">
+        <div class="sort-group">
+          <span class="sort-label">SOT:</span>
+          <input type="text" id="seccionNumero" class="sort-input" placeholder="Ej. 10293847"
+                 oninput="actualizarNumero(this.value)"
+                 onkeydown="if(event.key==='Enter'){ actualizarNumero(this.value); guardarFormActual(); generarPlantilla(); this.blur(); }" />
+        </div>
+        <div class="sec-tipo-badge" id="seccionTipoBadge">SIN GESTIÓN</div>
+        <div class="topbar-spacer"></div>
+        <button class="btn-del-icon" data-onclick="confirmarEliminarSeccion()" title="Eliminar sección">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ════ CONTENT GRID: COMPOSITE CENTRAL + HERRAMIENTAS ════ -->
+      <div class="content-grid-composite">
+
+        <!-- ── CENTRO: 2 COLUMNAS (PLANTILLAS Y HERRAMIENTAS OCR/NOTAS) ── -->
+        <div class="main-center-panels">
+
+          <!-- ── COLUMNA 1 (CÍRCULO ROJO): PLANTILLAS (DATOS + PLANTILLA GENERADA) ── -->
+          <div class="center-col-plantillas">
+
+            <!-- Panel: Datos & Plantilla -->
+            <section class="panel" id="panelDatos">
+              <div class="panel-header">
+                <h2><i class="fa-regular fa-clipboard"></i> Datos &amp; Plantilla</h2>
+              </div>
+              <form id="ticketForm" autocomplete="off" onsubmit="return false;">
+
+              <!-- TIPO GESTIÓN -->
+              <div class="field-group">
+                <label class="field-label" for="tipoGestion">Tipo de Gestión</label>
+                <div class="sel-wrap">
+                  <select id="tipoGestion" onchange="onTipoChange()">
+                    <option value="">— Selecciona una gestión —</option>
+                    <optgroup label="Activaciones">
+                      <option value="activacion">Activación</option>
+                      <option value="migracion">Migración</option>
+                      <option value="cambio_plan">Cambio de Plan</option>
+                      <option value="traslado_externo">Traslado Externo</option>
+                      <option value="reenvio_senal">Reenvío de Señal</option>
+                      <option value="activacion_mesh">Activación Mesh</option>
+                      <option value="activacion_plume">Activación Plume</option>
+                    </optgroup>
+                    <optgroup label="Equipos">
+                      <option value="codigo_autorizacion">Código Autorización</option>
+                      <option value="cambio_equipo">Cambio de Equipo</option>
+                    </optgroup>
+                    <optgroup label="Mantenimiento">
+                      <option value="sot_mantto">SOT DE MANTO</option>
+                      <option value="cambio_plano">Cambio de Plano</option>
+                    </optgroup>
+                    <optgroup label="Rechazos">
+                      <option value="rechazo_general">Rechazo General</option>
+                    </optgroup>
+                    <optgroup label="Consultas">
+                      <option value="cintillos_ftth">Consulta Cintillos FTTH</option>
+                      <option value="cintillos_hfc">Consulta Cintillos HFC</option>
+                    </optgroup>
+                    <optgroup label="Derivaciones PEXT">
+                      <option value="derivacion_pext_hfc">Derivación PEXT HFC</option>
+                      <option value="derivacion_pext_ftth">Derivación PEXT FTTH</option>
+                    </optgroup>
+                    <optgroup label="Conmutación">
+                      <option value="derivar_conmutacion">Derivar a Conmutación</option>
+                    </optgroup>
+                  </select>
+                  <span class="sel-arrow">▾</span>
+                </div>
+              </div>
+
+              <!-- N° TICKET -->
+              <div class="field-group" id="bloqueNTicket">
+                <label class="field-label" for="nTicket">N° de Ticket</label>
+                <input type="text" id="nTicket" placeholder="Ej. 123456789" />
+              </div>
+
+              <!-- Equipo Principal -->
+              <div id="bloqueEquipoPrincipal" class="eq-block main-eq hidden">
+                <div class="block-row">
+                  <span class="blk-label" id="equipoPrincipalLabel">EQUIPO ACTIVADO</span>
+                </div>
+                <div class="field-group inner">
+                  <label class="field-label">Tecnología</label>
+                  <div class="tech-btns">
+                    <button type="button" class="tech-btn" data-tech="hfc" data-onclick="setTech('hfc')">HFC EMTA</button>
+                    <button type="button" class="tech-btn" data-tech="ftth" data-onclick="setTech('ftth')">FTTH ONT</button>
+                  </div>
+                </div>
+                <div class="field-group inner">
+                  <label class="field-label" id="labelEquipoActivado">Equipo Activado</label>
+                  <input type="text" id="equipoActivado" placeholder="Ej. MODEM HFC / ONT FTTH" />
+                </div>
+                <div class="field-group inner">
+                  <label class="field-label">Modelo</label>
+                  <div class="sel-wrap">
+                    <select id="modeloEquipo" onchange="onModeloChange()">
+                      <option value="">— Selecciona tecnología primero —</option>
+                    </select>
+                    <span class="sel-arrow">▾</span>
+                  </div>
+                  <input type="text" id="modeloManual" class="hidden"
+                         placeholder="Escribe el modelo manualmente…"
+                         style="margin-top:0.4rem" autocomplete="off" />
+                </div>
+              </div>
+
+              <!-- Repetidor (solo Mesh) -->
+              <div id="bloqueRepetidor" class="eq-block mesh-eq hidden">
+                <div class="block-row">
+                  <span class="blk-label mesh-lbl">REPETIDOR ACTIVADO</span>
+                </div>
+                <div class="field-group inner">
+                  <label class="field-label">Repetidor Activado</label>
+                  <input type="text" id="repetidorActivado" placeholder="Ej. REPETIDOR MESH" />
+                </div>
+                <div class="field-group inner">
+                  <label class="field-label">Modelo Repetidor</label>
+                  <div class="sel-wrap">
+                    <select id="modeloRepetidor" onchange="onModeloRepetidorChange()">
+                      <option value="">— Selecciona modelo —</option>
+                      <option value="REPETIDOR ZXHN H3601P 180000528400 ZTE">REPETIDOR ZXHN H3601P 180000528400 ZTE</option>
+                      <option value="ROUTER K562E-10 50087708 HUAWEI">ROUTER K562E-10 50087708 HUAWEI</option>
+                      <option value="__manual__">Otro / Escribir manualmente…</option>
+                    </select>
+                    <span class="sel-arrow">▾</span>
+                  </div>
+                  <input type="text" id="modeloRepetidorManual" class="hidden"
+                         placeholder="Escribe modelo del repetidor…"
+                         style="margin-top:0.4rem" autocomplete="off" />
+                </div>
+              </div>
+
+              <!-- Equipos Adicionales -->
+              <div id="equiposAdicionales"></div>
+
+              <div id="botonesAgregar" class="add-btns hidden">
+                <div class="add-btns-row">
+                  <button type="button" class="btn-add" id="btnAddDeco" data-onclick="agregarEquipoAdicional('deco')">+ Deco</button>
+                  <button type="button" class="btn-add" id="btnAddRepetidor" data-onclick="agregarEquipoAdicional('repetidor')">+ Repetidor</button>
+                </div>
+              </div>
+
+              <!-- Formulario Dinámico -->
+              <div id="customFormArea" class="hidden"></div>
+
+              <!-- Estado -->
+              <div class="field-group" id="bloqueEstado">
+                <label class="field-label" id="labelEstado">Estado</label>
+                <div class="sel-wrap">
+                  <select id="estado" onchange="onEstadoChange()">
+                    <option value="">— Selecciona estado —</option>
+                    <option value="ATENDIDA">ATENDIDA</option>
+                    <option value="ATENDIDA SIN CONFORMIDAD">ATENDIDA SIN CONFORMIDAD</option>
+                    <option value="PENDIENTE SE DERIVA A SISTEMAS">PENDIENTE SE DERIVA A SISTEMAS</option>
+                    <option value="DENEGADA">DENEGADA</option>
+                    <option value="__manual__">Otro / Escribir manualmente…</option>
+                  </select>
+                  <span class="sel-arrow">▾</span>
+                </div>
+                <input type="text" id="estadoManual" class="hidden"
+                       placeholder="Escribe el estado manualmente…"
+                       style="margin-top:0.4rem" autocomplete="off" />
+              </div>
+
+              <!-- Observaciones -->
+              <div class="field-group" id="bloqueObs">
+                <label class="field-label" for="observaciones">Observaciones</label>
+                <textarea id="observaciones" rows="2" placeholder="Observaciones adicionales..."></textarea>
+              </div>
+
+              <!-- Realizado por (siempre visible tras selección) -->
+              <div id="bloqueRealizadoPor" class="field-group hidden">
+                <label class="field-label" for="realizadoPor">Realizado por</label>
+                <input type="text" id="realizadoPor" value="" placeholder="Ej. NOMBRE Y APELLIDO" />
+              </div>
+
+              <!-- Acciones -->
+              <div id="actionRow" class="action-row hidden">
+                <button type="button" class="btn-primary" data-onclick="generarPlantilla()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/>
+                  </svg>
+                  <span>Generar Plantilla</span>
+                </button>
+                <button type="button" id="btnLimpiar" class="btn-secondary btn-limpiar" data-onclick="limpiarSeccionActual()" title="Limpiar formulario de la SOT actual">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+                  </svg>
+                  <span>Limpiar</span>
+                </button>
+              </div>
+            </form>
+          </section>
+
+        </div> <!-- Fin center-col-plantillas -->
+
+        <!-- ── COLUMNA 2: PLANTILLA GENERADA, OCR Y BLOC DE NOTAS ── -->
+        <div class="center-col-herramientas" id="centerColHerramientas">
+
+          <!-- Panel 1: Plantilla Generada (Arriba en Columna 2) -->
+          <section class="panel reorderable-panel" id="panelPlantillaGenerada">
+            <div class="panel-header" style="justify-content: space-between;">
+              <h2>
+                <span class="panel-drag-handle" title="Arrastrar para mover">⋮⋮</span>
+                <i class="fa-solid fa-file-lines"></i> Plantilla Generada
+              </h2>
+              <div class="panel-header-actions">
+                <button class="btn-copy" id="btnCopy" data-onclick="copiarPlantilla()" disabled>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                  </svg>
+                  Copiar
+                </button>
+                <div class="panel-reorder-btns">
+                  <button type="button" class="btn-panel-move" data-onclick="moverPanel('panelPlantillaGenerada', 'arriba')" title="Subir panel">▲</button>
+                  <button type="button" class="btn-panel-move" data-onclick="moverPanel('panelPlantillaGenerada', 'abajo')" title="Bajar panel">▼</button>
+                </div>
+              </div>
+            </div>
+            <div class="plantilla-preview-body">
+              <div id="previewEmpty" class="preview-empty">
+                <p>Complete el formulario y presione<br/><strong>Generar Plantilla</strong></p>
+              </div>
+              <div id="previewContent" class="preview-content hidden">
+                <pre id="plantillaTexto" class="plantilla-pre"></pre>
+              </div>
+              <div id="copyFeedback" class="copy-feedback hidden">Copiado al portapapeles</div>
+            </div>
+          </section>
+
+          <!-- Panel 2: Escáner OCR (Al medio en Columna 2) -->
+          <section class="panel reorderable-panel" id="panelOCR">
+            <div class="panel-header" style="justify-content: space-between;">
+              <h2>
+                <span class="panel-drag-handle" title="Arrastrar para mover">⋮⋮</span>
+                <i class="fa-solid fa-expand"></i> Escáner OCR
+              </h2>
+              <div class="panel-header-actions">
+                <span class="ocr-hint-pill">Ctrl + V</span>
+                <div class="panel-reorder-btns">
+                  <button type="button" class="btn-panel-move" data-onclick="moverPanel('panelOCR', 'arriba')" title="Subir panel">▲</button>
+                  <button type="button" class="btn-panel-move" data-onclick="moverPanel('panelOCR', 'abajo')" title="Bajar panel">▼</button>
+                </div>
+              </div>
+            </div>
+            <div class="ocr-body">
+              <div id="dropzoneOCR" class="dropzone-simple active" data-onclick="document.getElementById('fileInputOCR').click()">
+                <div class="ocr-scan-frame-icon">
+                  <i class="fa-solid fa-crop-simple"></i>
+                </div>
+                <span class="ocr-dropzone-label">Pega o Arrastra tu imagen</span>
+                <input type="file" id="fileInputOCR" accept="image/*" style="display:none;" />
+              </div>
+
+              <div id="cropperWrapperOCR" class="cropper-wrapper-simple hidden">
+                <img id="imageToCropOCR" src="" alt="Recorte" style="max-width:100%; display:block;" />
+              </div>
+
+              <div id="cropperToolbarOCR" class="cropper-toolbar-simple hidden">
+                <div class="cropper-hint-text">
+                  🖱️ <strong>Clic Izquierdo:</strong> Subrayar &nbsp;|&nbsp; <strong>Clic Derecho:</strong> Mover imagen &nbsp;|&nbsp; <strong>Rueda:</strong> Zoom
+                </div>
+                <div class="cropper-btns-row">
+                  <button type="button" id="btnExtractTextOCR" class="btn-sm-primary" title="Escanear la zona seleccionada">
+                    <i class="fa-solid fa-bolt"></i> Escanear Recorte
+                  </button>
+                  <button type="button" id="btnRemoveImageOCR" data-onclick="clearOCRImage()" class="btn-sm-danger" title="Eliminar la foto actual">
+                    🗑️ Borrar Imagen
+                  </button>
+                </div>
+              </div>
+
+              <textarea id="ocrOutputSimple" class="ocr-output-ta" rows="3" readonly placeholder="El texto escaneado de tu recorte aparecerá aquí..."></textarea>
+              
+              <button type="button" id="btnCopyOCRText" class="btn-copy-ocr-main" data-onclick="copyOCRResultText()">
+                📋 Copiar Texto Escaneado
+              </button>
+            </div>
+          </section>
+
+          <!-- Panel 3: Bloc de Notas (Abajo en Columna 2) -->
+          <section class="panel reorderable-panel" id="panelNotas">
+            <div class="panel-header" style="justify-content: space-between;">
+              <h2>
+                <span class="panel-drag-handle" title="Arrastrar para mover">⋮⋮</span>
+                <i class="fa-regular fa-note-sticky"></i> Bloc de Notas
+              </h2>
+              <div class="panel-header-actions">
+                <span class="badge-internal">USO INTERNO</span>
+                <div class="panel-reorder-btns">
+                  <button type="button" class="btn-panel-move" data-onclick="moverPanel('panelNotas', 'arriba')" title="Subir panel">▲</button>
+                  <button type="button" class="btn-panel-move" data-onclick="moverPanel('panelNotas', 'abajo')" title="Bajar panel">▼</button>
+                </div>
+              </div>
+            </div>
+            <div class="notes-body">
+              <textarea id="notasTexto" class="notes-ta"
+                        placeholder="Escribe aquí notas, pases pendientes, datos temporales…"></textarea>
+            </div>
+          </section>
+
+        </div> <!-- Fin center-col-herramientas -->
+
+      </div> <!-- Fin main-center-panels -->
+
+    <!-- ┌── COLUMNA 3: HERRAMIENTAS ──┐ -->
+    <div class="col-right">
+          <section class="panel panel-codes">
+            <div class="panel-header codes-header">
+              <h2>🔑 Generador de Códigos (A/B)</h2>
+              <span class="mac-hint">Alterna A/B por ticket</span>
+            </div>
+            <div class="mac-body">
+              <div class="field-group">
+                <label class="field-label">Cuenta E (7 caracteres)</label>
+                <input type="text" id="codeEUser" class="mac-input" maxlength="7"
+                       placeholder="Ej. E758975" style="text-transform:uppercase"
+                       oninput="this.value=this.value.toUpperCase(); guardarCodeEUser();" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Códigos Generados</label>
+                <textarea id="codeOutput" readonly placeholder="Los códigos generados aparecerán aquí..."
+                          style="height:85px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; resize:vertical; background:var(--bg-card-sub); border:1px solid var(--border); color:var(--text-primary); padding:0.6rem; border-radius:6px; outline:none;"></textarea>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.45rem; margin-top:0.2rem;">
+                <button type="button" class="btn-sm-primary" data-onclick="generarCodigoAB()">⚡ Generar</button>
+                <button type="button" class="btn-sm-danger" data-onclick="eliminarUltimoCodigo()">🗑️ Eliminar</button>
+                <button type="button" class="btn-copy-mac" data-onclick="copiarCodigosGenerados()" style="justify-content:center;">📋 Copiar</button>
+                <button type="button" class="btn-copy-mac" data-onclick="descargarCodigosTXT()" style="justify-content:center;">📥 Descargar TXT</button>
+              </div>
+              <div id="codeFeedback" class="mac-feedback hidden" style="text-align:center; margin-top:0.3rem;"></div>
+            </div>
+          </section>
+
+          <!-- CONVERTIDOR MAC -->
+          <section class="panel panel-mac">
+            <div class="panel-header mac-header">
+              <h2>🌐 Convertidor MAC</h2>
+              <span class="mac-hint">XX:XX:XX:XX:XX:XX</span>
+            </div>
+            <div class="mac-body">
+              <div class="field-group">
+                <label class="field-label">Serie (12 caracteres hex)</label>
+                <input type="text" id="macInput" class="mac-input"
+                       maxlength="14" placeholder="Ej. A1B2C3D4E5F6"
+                       oninput="convertirMAC()" autocomplete="off" spellcheck="false" />
+                <div class="mac-counter" id="macCounter">0 / 12</div>
+              </div>
+              <div class="mac-result-row">
+                <div class="mac-value-wrap">
+                  <span class="mac-label-sm">MAC Address</span>
+                  <span class="mac-value" id="macValue">—</span>
+                </div>
+                <button class="btn-copy-mac" id="btnCopyMAC" data-onclick="copiarMAC()" disabled>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                  </svg>
+                  Copiar MAC
+                </button>
+              </div>
+              <div id="macFeedback" class="mac-feedback hidden">MAC copiada</div>
+            </div>
+          </section>
+
+          <!-- MÓDULO DE SEÑAL -->
+          <section class="panel panel-signal">
+            <div class="panel-header signal-header">
+              <h2>📊 Módulo de Señal</h2>
+              <span class="signal-hint">SNR HFC & FTTH</span>
+            </div>
+            <div class="signal-body">
+
+              <!-- Sub-bloque 1: EMTA HFC -->
+              <div class="signal-subcard">
+                <div class="signal-subhead">
+                  <span class="subhead-title">EMTA (HFC - Evaluador SNR)</span>
+                </div>
+                <div class="field-group inner">
+                  <label class="field-label">Valores (separados por comas)</label>
+                  <textarea id="valoresSNR" class="signal-ta" rows="2"
+                            placeholder="Ej. 45.0, 45.1, 45.0, 45.1, 45.2"></textarea>
+                </div>
+                <div class="signal-btn-row">
+                  <button type="button" class="btn-sm-primary" data-onclick="evaluarEstabilidad()">Evaluar SNR</button>
+                  <button type="button" class="btn-sm-danger" data-onclick="limpiarSNR()">Limpiar</button>
+                </div>
+                <div id="resultadoSNR" class="signal-result-box">—</div>
+              </div>
+
+              <!-- Sub-bloque 2: Nivel FTTH -->
+              <div class="signal-subcard">
+                <div class="signal-subhead">
+                  <span class="subhead-title">Nivel FTTH (ONT)</span>
+                </div>
+                <div class="field-group inner">
+                  <label class="field-label">Potencia RX (dBm)</label>
+                  <input type="number" step="0.1" id="rxValue" class="signal-input"
+                         placeholder="Ej. -20" onkeyup="if(event.key==='Enter') verificarNivelFTTH()" />
+                </div>
+                <div class="signal-btn-row">
+                  <button type="button" class="btn-sm-primary" data-onclick="verificarNivelFTTH()">Verificar Nivel</button>
+                  <button type="button" class="btn-sm-danger" data-onclick="limpiarRXFTTH()">Limpiar</button>
+                </div>
+                <div id="resultadoRX" class="signal-result-box">—</div>
+                <div id="barraRX" class="bar-indicator"></div>
+              </div>
+
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div> <!-- Fin de app-wrapper -->
+
+  <!-- ═══ MODAL CONFIGURACIÓN DE USUARIO (SOLICITUD INICIAL) ═══ -->
+  <div id="userProfileModal" class="ocr-modal-backdrop hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; width:90%; max-width:400px; padding:1.5rem; box-shadow:var(--shadow); color:var(--text-primary);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+        <h3 style="margin:0; font-size:1.1rem; color:var(--accent); display:flex; align-items:center; gap:0.5rem; font-weight:700;">
+          👤 Configura tus Datos de Asesor
+        </h3>
+        <button type="button" data-onclick="closeUserProfileModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" title="Cerrar">✕</button>
+      </div>
+
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.1rem; line-height:1.45;">
+        Bienvenido. Por favor ingresa tu <strong>Nombre Completo</strong> y tu <strong>Usuario E</strong>. Tus plantillas y códigos generados se completarán automáticamente con estos datos.
+      </p>
+
+      <form onsubmit="saveUserProfile(event)">
+        <div class="field-group" style="margin-bottom:1rem;">
+          <label class="field-label" for="profNombre" style="color:var(--text-secondary); font-size:0.78rem; font-weight:700; text-transform:uppercase; margin-bottom:0.35rem; display:block;">Nombre Completo</label>
+          <input type="text" id="profNombre" class="mac-input" placeholder="Ej. ANGEL LLAMACPONCCA" required style="text-transform:uppercase; width:100%; background:var(--bg-card-sub); border:1px solid var(--border); color:var(--text-primary); border-radius:8px; padding:0.65rem 0.85rem; font-size:0.9rem;" />
+        </div>
+
+        <div class="field-group" style="margin-bottom:1.3rem;">
+          <label class="field-label" for="profUserE" style="color:var(--text-secondary); font-size:0.78rem; font-weight:700; text-transform:uppercase; margin-bottom:0.35rem; display:block;">Usuario E (Cuenta E)</label>
+          <input type="text" id="profUserE" class="mac-input" placeholder="Ej. E758975" maxlength="7" required style="text-transform:uppercase; width:100%; background:var(--bg-card-sub); border:1px solid var(--border); color:var(--text-primary); border-radius:8px; padding:0.65rem 0.85rem; font-size:0.9rem;" />
+        </div>
+
+        <div style="display:flex; gap:0.6rem; justify-content:flex-end;">
+          <button type="button" class="btn-secondary" data-onclick="closeUserProfileModal()" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+          <button type="submit" class="btn-primary" style="padding:8px 18px; border-radius:8px; cursor:pointer; font-weight:700;">💾 Guardar Datos</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>Hecho por Angel Llamacponcca</p>
+  </footer>
+
+  <!-- ═══ MASCOTA DECORATIVA EXCLUSIVA TEMA ROSA (CHANSEY) ═══ -->
+  <div class="pink-mascot" id="pinkMascot" data-onclick="mascotHappyJump()" title="¡Hola! Clic para interactuar 💕">
+    <div class="mascot-bubble" id="mascotBubble">¡Feliz día! 💕</div>
+    <div class="mascot-walker">
+      <img src="chansey.gif?v=20261022_clean_silhouette" alt="Chansey" class="mascot-img" />
+      <div class="mascot-shadow"></div>
+    </div>
+  </div>
+
+  <!-- ═══ MASCOTA DECORATIVA EXCLUSIVA TEMA ROJO (BLAZIKEN) ═══ -->
+  <div class="red-mascot" id="redMascot" data-onclick="blazikenActionJump()" title="¡Fuego! Clic para interactuar 🔥">
+    <div class="mascot-bubble red-bubble" id="redMascotBubble">¡A toda máquina! 🔥</div>
+    <div class="mascot-walker red-walker">
+      <img src="blaziken.png" alt="Blaziken" class="mascot-img red-img" />
+      <div class="mascot-shadow red-shadow"></div>
+    </div>
+  </div>
+
+  <!-- ═══ MASCOTA DECORATIVA EXCLUSIVA TEMA MORADO (GENGAR) ═══ -->
+  <div class="purple-mascot" id="purpleMascot" data-onclick="gengarSpookyJump()" title="¡Buh! Clic para interactuar 👻">
+    <div class="mascot-bubble purple-bubble" id="purpleMascotBubble">¡Ge-ge-ge! 👻</div>
+    <div class="mascot-walker purple-walker">
+      <img src="gengar.gif?v=20261022_clean_silhouette" alt="Gengar" class="mascot-img purple-img" />
+      <div class="mascot-shadow purple-shadow"></div>
+    </div>
+  </div>
+
+  <!-- ═══ MASCOTA DECORATIVA EXCLUSIVA TEMA CIAN (SQUIRTLE) ═══ -->
+  <div class="cyan-mascot" id="cyanMascot" data-onclick="squirtleCoolJump()" title="¡Vamo a calmarno! Clic para interactuar 😎">
+    <div class="mascot-bubble cyan-bubble" id="cyanMascotBubble">¡Vamo a calmarno! 😎</div>
+    <div class="mascot-walker cyan-walker">
+      <img src="squirtle.png" alt="Squirtle" class="mascot-img cyan-img" />
+      <div class="mascot-shadow cyan-shadow"></div>
+    </div>
+  </div>
+
+  <!-- ═══ ESCENARIO ANIMADO EXCLUSIVO MODO HALLOWEEN ═══ -->
+  <div class="halloween-stage" id="halloweenStage" aria-hidden="true">
+    <!-- Destello de relámpago al activar Halloween y tormenta lejana -->
+    <div class="hw-lightning-flash" id="hwLightningFlash"></div>
+
+    <!-- Telaraña esquina superior izquierda -->
+    <svg class="hw-cobweb hw-cobweb-tl" viewBox="0 0 120 120" fill="none">
+      <path d="M0 0 L120 0 M0 0 L105 55 M0 0 L85 85 M0 0 L55 105 M0 0 L0 120" stroke="currentColor" stroke-width="1.3" opacity="0.55"/>
+      <path d="M30 0 Q26 16 26 26 Q16 26 0 30" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+      <path d="M60 0 Q52 32 45 45 Q32 52 0 60" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+      <path d="M90 0 Q78 48 65 65 Q48 78 0 90" stroke="currentColor" stroke-width="1.2" opacity="0.45"/>
+      <path d="M115 0 Q96 60 82 82 Q60 96 0 115" stroke="currentColor" stroke-width="1.2" opacity="0.4"/>
+    </svg>
+
+    <!-- Telaraña esquina superior derecha -->
+    <svg class="hw-cobweb hw-cobweb-tr" viewBox="0 0 120 120" fill="none">
+      <path d="M0 0 L120 0 M0 0 L105 55 M0 0 L85 85 M0 0 L55 105 M0 0 L0 120" stroke="currentColor" stroke-width="1.3" opacity="0.55"/>
+      <path d="M30 0 Q26 16 26 26 Q16 26 0 30" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+      <path d="M60 0 Q52 32 45 45 Q32 52 0 60" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+      <path d="M90 0 Q78 48 65 65 Q48 78 0 90" stroke="currentColor" stroke-width="1.2" opacity="0.45"/>
+      <path d="M115 0 Q96 60 82 82 Q60 96 0 115" stroke="currentColor" stroke-width="1.2" opacity="0.4"/>
+    </svg>
+
+    <!-- Araña animada derecha que sube y baja por su hilo -->
+    <div class="hw-spider-hanger">
+      <div class="hw-spider-thread"></div>
+      <div class="hw-spider-body">🕷️</div>
+    </div>
+
+    <!-- Segunda Araña animada izquierda -->
+    <div class="hw-spider-hanger hw-spider-hanger-left">
+      <div class="hw-spider-thread hw-thread-left"></div>
+      <div class="hw-spider-body">🕷️</div>
+    </div>
+
+    <!-- Luna de Cosecha / Halloween resplandeciente -->
+    <div class="hw-harvest-moon"></div>
+
+    <!-- Bruja pixel art voladora cruzando el cielo nocturno -->
+    <div class="hw-witch-flyer">
+      <img src="witch-pixel.gif?v=20261024_pixel_witch" alt="" class="hw-witch-img" draggable="false" />
+    </div>
+
+    <!-- Murciélagos voladores con distintas trayectorias -->
+    <div class="hw-bat hw-bat-1">🦇</div>
+    <div class="hw-bat hw-bat-2">🦇</div>
+    <div class="hw-bat hw-bat-3">🦇</div>
+    <div class="hw-bat hw-bat-4">🦇</div>
+    <div class="hw-bat hw-bat-5">🦇</div>
+    <div class="hw-bat hw-bat-6">🦇</div>
+
+    <!-- Fantasmas, Calaveras y Calabazas espectrales flotantes -->
+    <div class="hw-spooky-floater hw-float-1">👻</div>
+    <div class="hw-spooky-floater hw-float-2">🎃</div>
+    <div class="hw-spooky-floater hw-float-3">🕯️</div>
+    <div class="hw-spooky-floater hw-float-4">👻</div>
+    <div class="hw-spooky-floater hw-float-5">💀</div>
+    <div class="hw-spooky-floater hw-float-6">🎃</div>
+
+    <!-- Brasas / Luciérnagas mágicas ascendentes y hojas de otoño -->
+    <div class="hw-ember hw-ember-1"></div>
+    <div class="hw-ember hw-ember-2"></div>
+    <div class="hw-ember hw-ember-3"></div>
+    <div class="hw-ember hw-ember-4"></div>
+    <div class="hw-ember hw-ember-5"></div>
+    <div class="hw-ember hw-ember-6"></div>
+    <div class="hw-falling-leaf hw-leaf-1">🍂</div>
+    <div class="hw-falling-leaf hw-leaf-2">🍁</div>
+    <div class="hw-falling-leaf hw-leaf-3">🍂</div>
+
+    <!-- Ojos misteriosos que parpadean en la oscuridad -->
+    <div class="hw-creepy-eyes hw-eyes-1">👀</div>
+    <div class="hw-creepy-eyes hw-eyes-2">👀</div>
+
+    <!-- Niebla embrujada en la parte inferior -->
+    <div class="hw-eerie-mist"></div>
+  </div>
+
+  <!-- ═══ ESCENARIO ANIMADO EXCLUSIVO MODO NAVIDEÑO ═══ -->
+  <div class="christmas-stage" id="christmasStage" aria-hidden="true">
+    <!-- Guirnalda de luces navideñas parpadeantes en la parte superior -->
+    <div class="xmas-lights-garland">
+      <div class="xmas-light-bulb c-red"></div>
+      <div class="xmas-light-bulb c-gold"></div>
+      <div class="xmas-light-bulb c-green"></div>
+      <div class="xmas-light-bulb c-blue"></div>
+      <div class="xmas-light-bulb c-white"></div>
+      <div class="xmas-light-bulb c-red"></div>
+      <div class="xmas-light-bulb c-green"></div>
+      <div class="xmas-light-bulb c-gold"></div>
+      <div class="xmas-light-bulb c-blue"></div>
+      <div class="xmas-light-bulb c-red"></div>
+      <div class="xmas-light-bulb c-green"></div>
+      <div class="xmas-light-bulb c-white"></div>
+      <div class="xmas-light-bulb c-gold"></div>
+      <div class="xmas-light-bulb c-red"></div>
+      <div class="xmas-light-bulb c-green"></div>
+    </div>
+
+    <!-- Nieve cayendo en múltiples capas -->
+    <div class="xmas-snow-wrap">
+      <div class="xmas-snow-flake s-1">❄</div>
+      <div class="xmas-snow-flake s-2">❅</div>
+      <div class="xmas-snow-flake s-3">•</div>
+      <div class="xmas-snow-flake s-4">❄</div>
+      <div class="xmas-snow-flake s-5">❅</div>
+      <div class="xmas-snow-flake s-6">•</div>
+      <div class="xmas-snow-flake s-7">❄</div>
+      <div class="xmas-snow-flake s-8">❅</div>
+      <div class="xmas-snow-flake s-9">•</div>
+      <div class="xmas-snow-flake s-10">❄</div>
+      <div class="xmas-snow-flake s-11">❅</div>
+      <div class="xmas-snow-flake s-12">•</div>
+      <div class="xmas-snow-flake s-13">❄</div>
+      <div class="xmas-snow-flake s-14">❅</div>
+      <div class="xmas-snow-flake s-15">•</div>
+      <div class="xmas-snow-flake s-16">❄</div>
+      <div class="xmas-snow-flake s-17">❅</div>
+      <div class="xmas-snow-flake s-18">•</div>
+    </div>
+
+    <!-- Trineo de Santa volando por el cielo nocturno con renos corriendo pixel art -->
+    <div class="xmas-sleigh-flyer" id="xmasSleighFlyer" data-onclick="onSantaPixelClick(event)" title="¡Haz clic en Santa para escuchar el tintineo navideño!">
+      <div class="xmas-sleigh-squad">
+        <span class="xmas-stardust xmas-stardust-trail">✨</span>
+        <img src="santa-pixel.gif?v=20261101_reindeer_gallop" alt="Santa Claus con renos corriendo" class="xmas-santa-img" draggable="false" />
+        <span class="xmas-stardust xmas-stardust-lead">⭐</span>
+      </div>
+    </div>
+
+    <!-- Árbol de Navidad decorado en la esquina con estrella brillante -->
+    <div class="xmas-tree-corner">
+      <div class="xmas-tree-star">⭐</div>
+      <div class="xmas-tree-body">🎄</div>
+      <div class="xmas-gifts-pile">🎁🎁</div>
+    </div>
+
+    <!-- Muñeco de nieve simpático saludando en la esquina inferior -->
+    <div class="xmas-snowman-corner">
+      <span class="xmas-snowman-body">⛄</span>
+    </div>
+
+    <!-- Campanas navideñas decorativas en la esquina superior -->
+    <div class="xmas-corner-bells">🔔</div>
+
+    <!-- Corona navideña festiva en la esquina derecha -->
+    <div class="xmas-corner-wreath">🎀</div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script src="cropper.min.js"></script>
+  <script src="ocr-extension.js"></script>
+</body>
+</html>
