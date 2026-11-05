@@ -499,6 +499,131 @@ function insertTemplateIntoLaraigoChat(text) {
   }
 }
 
+// Enlazar eventos de formulario y modal de asesor (100% CSP compliant)
+function setupFormEventListeners() {
+  // 1. Modal Perfil Asesor
+  const userProfileForm = document.getElementById('userProfileForm');
+  if (userProfileForm) {
+    userProfileForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (typeof window.saveUserProfile === 'function') {
+        window.saveUserProfile(e);
+      }
+    });
+  }
+
+  const btnSaveProfile = document.getElementById('btnSaveProfile');
+  if (btnSaveProfile) {
+    btnSaveProfile.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof window.saveUserProfile === 'function') {
+        window.saveUserProfile(e);
+      }
+    });
+  }
+
+  const profNombre = document.getElementById('profNombre');
+  const profUserE = document.getElementById('profUserE');
+  if (profNombre) {
+    profNombre.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (profUserE) profUserE.focus();
+      }
+    });
+  }
+  if (profUserE) {
+    profUserE.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (typeof window.saveUserProfile === 'function') {
+          window.saveUserProfile(e);
+        }
+      }
+    });
+  }
+
+  // 2. SOT Numero
+  const secNum = document.getElementById('seccionNumero');
+  if (secNum) {
+    secNum.addEventListener('input', (e) => {
+      if (typeof window.actualizarNumero === 'function') {
+        window.actualizarNumero(e.target.value);
+      }
+    });
+    secNum.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (typeof window.actualizarNumero === 'function') window.actualizarNumero(e.target.value);
+        if (typeof window.guardarFormActual === 'function') window.guardarFormActual();
+        if (typeof window.generarPlantilla === 'function') window.generarPlantilla();
+        e.target.blur();
+      }
+    });
+  }
+
+  // 3. Ticket Form
+  const ticketForm = document.getElementById('ticketForm');
+  if (ticketForm) {
+    ticketForm.addEventListener('submit', (e) => e.preventDefault());
+  }
+
+  // 4. Selects de Gestión, Equipos y Estados
+  const tipoGestion = document.getElementById('tipoGestion');
+  if (tipoGestion) {
+    tipoGestion.addEventListener('change', () => {
+      if (typeof window.onTipoChange === 'function') window.onTipoChange();
+    });
+  }
+
+  const modeloEquipo = document.getElementById('modeloEquipo');
+  if (modeloEquipo) {
+    modeloEquipo.addEventListener('change', () => {
+      if (typeof window.onModeloChange === 'function') window.onModeloChange();
+    });
+  }
+
+  const modeloRepetidor = document.getElementById('modeloRepetidor');
+  if (modeloRepetidor) {
+    modeloRepetidor.addEventListener('change', () => {
+      if (typeof window.onModeloRepetidorChange === 'function') window.onModeloRepetidorChange();
+    });
+  }
+
+  const estado = document.getElementById('estado');
+  if (estado) {
+    estado.addEventListener('change', () => {
+      if (typeof window.onEstadoChange === 'function') window.onEstadoChange();
+    });
+  }
+
+  // 5. Code E-User
+  const codeEUser = document.getElementById('codeEUser');
+  if (codeEUser) {
+    codeEUser.addEventListener('input', (e) => {
+      e.target.value = e.target.value.toUpperCase();
+      if (typeof window.guardarCodeEUser === 'function') window.guardarCodeEUser();
+    });
+  }
+
+  // 6. MAC input
+  const macInput = document.getElementById('macInput');
+  if (macInput) {
+    macInput.addEventListener('input', () => {
+      if (typeof window.convertirMAC === 'function') window.convertirMAC();
+    });
+  }
+
+  // 7. RX FTTH
+  const rxValue = document.getElementById('rxValue');
+  if (rxValue) {
+    rxValue.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        if (typeof window.verificarNivelFTTH === 'function') window.verificarNivelFTTH();
+      }
+    });
+  }
+}
+
 // Inicialización de UI al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
   updateLockScreenTheme();
@@ -510,35 +635,37 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('is-extension-popup');
   }
 
-    // Añadir botón "Pegar en Laraigo" en la sección de plantilla generada
-    const btnCopy = document.getElementById('btnCopy');
-    if (btnCopy && btnCopy.parentElement) {
-      const btnInsertChat = document.createElement('button');
-      btnInsertChat.type = 'button';
-      btnInsertChat.id = 'btnInsertLaraigoChat';
-      btnInsertChat.className = 'btn-copy btn-insert-laraigo';
-      btnInsertChat.innerHTML = '⚡ Pegar en Laraigo';
-      btnInsertChat.title = 'Pega la plantilla directamente en el chat abierto de Laraigo';
+  // Añadir botón "Pegar en Laraigo" en la sección de plantilla generada
+  const btnCopy = document.getElementById('btnCopy');
+  if (btnCopy && btnCopy.parentElement) {
+    const btnInsertChat = document.createElement('button');
+    btnInsertChat.type = 'button';
+    btnInsertChat.id = 'btnInsertLaraigoChat';
+    btnInsertChat.className = 'btn-copy btn-insert-laraigo';
+    btnInsertChat.innerHTML = '⚡ Pegar en Laraigo';
+    btnInsertChat.title = 'Pega la plantilla directamente en el chat abierto de Laraigo';
+    btnInsertChat.disabled = btnCopy.disabled;
+    btnInsertChat.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    btnInsertChat.style.color = '#ffffff';
+    btnInsertChat.style.fontWeight = '700';
+
+    btnInsertChat.addEventListener('click', () => {
+      const txt = document.getElementById('txtPlantilla');
+      if (txt && txt.value) {
+        insertTemplateIntoLaraigoChat(txt.value);
+      }
+    });
+
+    // Insertar antes del botón copiar
+    btnCopy.parentElement.insertBefore(btnInsertChat, btnCopy);
+
+    // Sincronizar estado disabled con btnCopy
+    const observer = new MutationObserver(() => {
       btnInsertChat.disabled = btnCopy.disabled;
-      btnInsertChat.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-      btnInsertChat.style.color = '#ffffff';
-      btnInsertChat.style.fontWeight = '700';
-
-      btnInsertChat.addEventListener('click', () => {
-        const txt = document.getElementById('txtPlantilla');
-        if (txt && txt.value) {
-          insertTemplateIntoLaraigoChat(txt.value);
-        }
-      });
-
-      // Insertar antes del botón copiar
-      btnCopy.parentElement.insertBefore(btnInsertChat, btnCopy);
-
-      // Sincronizar estado disabled con btnCopy
-      const observer = new MutationObserver(() => {
-        btnInsertChat.disabled = btnCopy.disabled;
-      });
-      observer.observe(btnCopy, { attributes: true, attributeFilter: ['disabled'] });
-    }
+    });
+    observer.observe(btnCopy, { attributes: true, attributeFilter: ['disabled'] });
   }
+
+  // Enlazar eventos de formulario y modal de asesor
+  setupFormEventListeners();
 });

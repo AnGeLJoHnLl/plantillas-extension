@@ -230,9 +230,7 @@
       <div class="section-topbar" id="sectionTopbar">
         <div class="sort-group">
           <span class="sort-label">SOT:</span>
-          <input type="text" id="seccionNumero" class="sort-input" placeholder="Ej. 10293847"
-                 oninput="actualizarNumero(this.value)"
-                 onkeydown="if(event.key==='Enter'){ actualizarNumero(this.value); guardarFormActual(); generarPlantilla(); this.blur(); }" />
+          <input type="text" id="seccionNumero" class="sort-input" placeholder="Ej. 10293847" />
         </div>
         <div class="sec-tipo-badge" id="seccionTipoBadge">SIN GESTIÓN</div>
         <div class="topbar-spacer"></div>
@@ -258,13 +256,13 @@
               <div class="panel-header">
                 <h2><i class="fa-regular fa-clipboard"></i> Datos &amp; Plantilla</h2>
               </div>
-              <form id="ticketForm" autocomplete="off" onsubmit="return false;">
+              <form id="ticketForm" autocomplete="off">
 
               <!-- TIPO GESTIÓN -->
               <div class="field-group">
                 <label class="field-label" for="tipoGestion">Tipo de Gestión</label>
                 <div class="sel-wrap">
-                  <select id="tipoGestion" onchange="onTipoChange()">
+                  <select id="tipoGestion">
                     <option value="">— Selecciona una gestión —</option>
                     <optgroup label="Activaciones">
                       <option value="activacion">Activación</option>
@@ -327,7 +325,7 @@
                 <div class="field-group inner">
                   <label class="field-label">Modelo</label>
                   <div class="sel-wrap">
-                    <select id="modeloEquipo" onchange="onModeloChange()">
+                    <select id="modeloEquipo">
                       <option value="">— Selecciona tecnología primero —</option>
                     </select>
                     <span class="sel-arrow">▾</span>
@@ -350,7 +348,7 @@
                 <div class="field-group inner">
                   <label class="field-label">Modelo Repetidor</label>
                   <div class="sel-wrap">
-                    <select id="modeloRepetidor" onchange="onModeloRepetidorChange()">
+                    <select id="modeloRepetidor">
                       <option value="">— Selecciona modelo —</option>
                       <option value="REPETIDOR ZXHN H3601P 180000528400 ZTE">REPETIDOR ZXHN H3601P 180000528400 ZTE</option>
                       <option value="ROUTER K562E-10 50087708 HUAWEI">ROUTER K562E-10 50087708 HUAWEI</option>
@@ -381,7 +379,7 @@
               <div class="field-group" id="bloqueEstado">
                 <label class="field-label" id="labelEstado">Estado</label>
                 <div class="sel-wrap">
-                  <select id="estado" onchange="onEstadoChange()">
+                  <select id="estado">
                     <option value="">— Selecciona estado —</option>
                     <option value="ATENDIDA">ATENDIDA</option>
                     <option value="ATENDIDA SIN CONFORMIDAD">ATENDIDA SIN CONFORMIDAD</option>
@@ -548,9 +546,7 @@
             <div class="mac-body">
               <div class="field-group">
                 <label class="field-label">Cuenta E (7 caracteres)</label>
-                <input type="text" id="codeEUser" class="mac-input" maxlength="7"
-                       placeholder="Ej. E758975" style="text-transform:uppercase"
-                       oninput="this.value=this.value.toUpperCase(); guardarCodeEUser();" />
+                <input type="text" id="codeEUser" class="mac-input" maxlength="25" placeholder="Ej. E758975" style="text-transform:uppercase" />
               </div>
               <div class="field-group">
                 <label class="field-label">Códigos Generados</label>
@@ -576,9 +572,7 @@
             <div class="mac-body">
               <div class="field-group">
                 <label class="field-label">Serie (12 caracteres hex)</label>
-                <input type="text" id="macInput" class="mac-input"
-                       maxlength="14" placeholder="Ej. A1B2C3D4E5F6"
-                       oninput="convertirMAC()" autocomplete="off" spellcheck="false" />
+                <input type="text" id="macInput" class="mac-input" maxlength="14" placeholder="Ej. A1B2C3D4E5F6" autocomplete="off" spellcheck="false" />
                 <div class="mac-counter" id="macCounter">0 / 12</div>
               </div>
               <div class="mac-result-row">
@@ -630,8 +624,7 @@
                 </div>
                 <div class="field-group inner">
                   <label class="field-label">Potencia RX (dBm)</label>
-                  <input type="number" step="0.1" id="rxValue" class="signal-input"
-                         placeholder="Ej. -20" onkeyup="if(event.key==='Enter') verificarNivelFTTH()" />
+                  <input type="number" step="0.1" id="rxValue" class="signal-input" placeholder="Ej. -20" />
                 </div>
                 <div class="signal-btn-row">
                   <button type="button" class="btn-sm-primary" data-onclick="verificarNivelFTTH()">Verificar Nivel</button>
@@ -649,39 +642,39 @@
   </div> <!-- Fin de app-wrapper -->
 
   <!-- ═══ MODAL CONFIGURACIÓN DE USUARIO (SOLICITUD INICIAL) ═══ -->
-  <div id="userProfileModal" class="ocr-modal-backdrop hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);">
+  <div id="userProfileModal" class="ocr-modal-backdrop hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; display:none; align-items:center; justify-content:center; backdrop-filter:blur(6px);">
     <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; width:90%; max-width:400px; padding:1.5rem; box-shadow:var(--shadow); color:var(--text-primary);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
         <h3 style="margin:0; font-size:1.1rem; color:var(--accent); display:flex; align-items:center; gap:0.5rem; font-weight:700;">
           👤 Configura tus Datos de Asesor
         </h3>
-        <button type="button" data-onclick="closeUserProfileModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" title="Cerrar">✕</button>
+        <button type="button" id="btnCloseProfileX" data-onclick="closeUserProfileModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" title="Cerrar">✕</button>
       </div>
 
       <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.1rem; line-height:1.45;">
-        Bienvenido. Por favor ingresa tu <strong>Nombre Completo</strong> y tu <strong>Usuario E</strong>. Tus plantillas y códigos generados se completarán automáticamente con estos datos.
+        Bienvenido. Por favor ingresa tu <strong>Nombre Completo</strong> y tu <strong>Código / Usuario E</strong>. Tus plantillas y códigos generados se completarán automáticamente con estos datos.
       </p>
 
-      <form onsubmit="saveUserProfile(event)">
+      <div id="profErrorMsg" class="hidden" style="color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:8px; padding:0.5rem 0.75rem; font-size:0.8rem; font-weight:600; margin-bottom:1rem; text-align:center; display:none;"></div>
+
+      <form id="userProfileForm" autocomplete="off">
         <div class="field-group" style="margin-bottom:1rem;">
           <label class="field-label" for="profNombre" style="color:var(--text-secondary); font-size:0.78rem; font-weight:700; text-transform:uppercase; margin-bottom:0.35rem; display:block;">Nombre Completo</label>
           <input type="text" id="profNombre" class="mac-input" placeholder="Ej. ANGEL LLAMACPONCCA" required style="text-transform:uppercase; width:100%; background:var(--bg-card-sub); border:1px solid var(--border); color:var(--text-primary); border-radius:8px; padding:0.65rem 0.85rem; font-size:0.9rem;" />
         </div>
 
         <div class="field-group" style="margin-bottom:1.3rem;">
-          <label class="field-label" for="profUserE" style="color:var(--text-secondary); font-size:0.78rem; font-weight:700; text-transform:uppercase; margin-bottom:0.35rem; display:block;">Usuario E (Cuenta E)</label>
-          <input type="text" id="profUserE" class="mac-input" placeholder="Ej. E758975" maxlength="7" required style="text-transform:uppercase; width:100%; background:var(--bg-card-sub); border:1px solid var(--border); color:var(--text-primary); border-radius:8px; padding:0.65rem 0.85rem; font-size:0.9rem;" />
+          <label class="field-label" for="profUserE" style="color:var(--text-secondary); font-size:0.78rem; font-weight:700; text-transform:uppercase; margin-bottom:0.35rem; display:block;">Usuario E (Cuenta / Código E)</label>
+          <input type="text" id="profUserE" class="mac-input" placeholder="Ej. E758975" maxlength="25" required style="text-transform:uppercase; width:100%; background:var(--bg-card-sub); border:1px solid var(--border); color:var(--text-primary); border-radius:8px; padding:0.65rem 0.85rem; font-size:0.9rem;" />
         </div>
 
         <div style="display:flex; gap:0.6rem; justify-content:flex-end;">
-          <button type="button" class="btn-secondary" data-onclick="closeUserProfileModal()" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
-          <button type="submit" class="btn-primary" style="padding:8px 18px; border-radius:8px; cursor:pointer; font-weight:700;">💾 Guardar Datos</button>
+          <button type="button" class="btn-secondary" id="btnCancelProfile" data-onclick="closeUserProfileModal()" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+          <button type="button" id="btnSaveProfile" class="btn-primary" data-onclick="saveUserProfile(event)" style="padding:8px 18px; border-radius:8px; cursor:pointer; font-weight:700;">💾 Guardar Datos</button>
         </div>
       </form>
     </div>
-  </div>
-
-  <footer class="app-footer">
+  </div><footer class="app-footer">
     <p>Hecho por Angel Llamacponcca</p>
   </footer>
 

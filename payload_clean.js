@@ -388,7 +388,21 @@ function checkInitialUserProfile() {
   const savedE    = localStorage.getItem('hitss_euser');
   updateHeaderProfileDisplay();
   if (!savedName || !savedE) {
-    setTimeout(() => openUserProfileModal(), 300);
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['hitss_username', 'hitss_euser'], (res) => {
+        if (res && res.hitss_username && res.hitss_euser) {
+          localStorage.setItem('hitss_username', res.hitss_username);
+          localStorage.setItem('hitss_euser', res.hitss_euser);
+          updateHeaderProfileDisplay();
+          sv('realizadoPor', res.hitss_username);
+          sv('codeEUser', res.hitss_euser);
+          return;
+        }
+        setTimeout(() => openUserProfileModal(), 200);
+      });
+      return;
+    }
+    setTimeout(() => openUserProfileModal(), 200);
   }
 }
 
@@ -421,33 +435,72 @@ function openUserProfileModal() {
   if (pName) pName.value = getStoredUserName();
   if (pE) pE.value = getStoredUserE();
   m.classList.remove('hidden');
+  m.style.display = 'flex';
+  const errEl = g('profErrorMsg');
+  if (errEl) {
+    errEl.classList.add('hidden');
+    errEl.style.display = 'none';
+  }
+  if (pName && !pName.value) {
+    setTimeout(() => pName.focus(), 150);
+  } else if (pE && !pE.value) {
+    setTimeout(() => pE.focus(), 150);
+  }
 }
 
 function closeUserProfileModal() {
   const m = g('userProfileModal');
-  if (m) m.classList.add('hidden');
+  if (m) {
+    m.classList.add('hidden');
+    m.style.display = 'none';
+  }
 }
 
 function saveUserProfile(e) {
-  if (e) e.preventDefault();
-  const name = gv('profNombre').trim().toUpperCase();
-  const euser = gv('profUserE').trim().toUpperCase();
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+  const nameEl = g('profNombre');
+  const euserEl = g('profUserE');
+  const name = nameEl ? nameEl.value.trim().toUpperCase() : '';
+  const euser = euserEl ? euserEl.value.trim().toUpperCase() : '';
+  const errEl = g('profErrorMsg');
 
   if (!name || !euser) {
-    alert('Por favor completa tu Nombre y Usuario E');
+    if (errEl) {
+      errEl.textContent = '⚠️ Por favor completa tu Nombre y tu Código / Usuario';
+      errEl.classList.remove('hidden');
+      errEl.style.display = 'block';
+    } else {
+      alert('Por favor completa tu Nombre y tu Código / Usuario');
+    }
+    if (!name && nameEl) nameEl.focus();
+    else if (!euser && euserEl) euserEl.focus();
     return;
+  }
+
+  if (errEl) {
+    errEl.classList.add('hidden');
+    errEl.style.display = 'none';
   }
 
   localStorage.setItem('hitss_username', name);
   localStorage.setItem('hitss_euser', euser);
+
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ hitss_username: name, hitss_euser: euser });
+    }
+  } catch (err) {}
 
   // Actualizar inputs en pantalla
   sv('realizadoPor', name);
   sv('codeEUser', euser);
 
   // Actualizar objeto sección activa
-  if (secciones.length > 0) {
-    secciones[seccionActiva].realizadoPor = name;
+  if (typeof secciones !== 'undefined' && Array.isArray(secciones) && secciones.length > 0) {
+    const idx = (typeof seccionActiva === 'number' && seccionActiva >= 0 && seccionActiva < secciones.length) ? seccionActiva : 0;
+    if (secciones[idx]) {
+      secciones[idx].realizadoPor = name;
+    }
   }
 
   updateHeaderProfileDisplay();
@@ -457,6 +510,10 @@ function saveUserProfile(e) {
     mostrarAvisoSerial(`👤 Perfil guardado: ${name} (${euser})`);
   }
 }
+
+window.openUserProfileModal = openUserProfileModal;
+window.closeUserProfileModal = closeUserProfileModal;
+window.saveUserProfile = saveUserProfile;
 
 function crearSeccion() {
   return {
@@ -526,17 +583,9 @@ function getStoredPassHash() {
 }
 
 function checkAppLockState() {
-  const isUnlocked = sessionStorage.getItem('hitss_auth_unlocked') === 'true';
+  sessionStorage.setItem('hitss_auth_unlocked', 'true');
   const lockEl = g('appLockScreen');
-  if (lockEl) {
-    if (isUnlocked) {
-      lockEl.classList.add('hidden');
-    } else {
-      lockEl.classList.remove('hidden');
-      const passInp = g('appPassInput');
-      if (passInp) setTimeout(() => passInp.focus(), 200);
-    }
-  }
+  if (lockEl) lockEl.classList.add('hidden');
 }
 
 async function verificarContrasenaApp(e) {
