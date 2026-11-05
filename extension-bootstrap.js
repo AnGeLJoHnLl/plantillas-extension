@@ -613,15 +613,7 @@ function setupFormEventListeners() {
     });
   }
 
-  // 7. RX FTTH
-  const rxValue = document.getElementById('rxValue');
-  if (rxValue) {
-    rxValue.addEventListener('keyup', (e) => {
-      if (e.key === 'Enter') {
-        if (typeof window.verificarNivelFTTH === 'function') window.verificarNivelFTTH();
-      }
-    });
-  }
+
 }
 
 // Inicialización de UI al cargar el DOM
