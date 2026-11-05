@@ -159,6 +159,16 @@
 
   // 4. Mensajería bidireccional con el Iframe (PostMessage)
   function listenMessagesFromIframe() {
+    // Escuchar mensajes internos de la extensión
+    if (chrome && chrome.runtime && chrome.runtime.onMessage) {
+      chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (message && message.action === 'TOGGLE_HITSS_DRAWER') {
+          toggleDrawer();
+          sendResponse({ status: 'ok' });
+        }
+      });
+    }
+
     window.addEventListener('message', (event) => {
       if (!event.data || typeof event.data !== 'object') return;
 

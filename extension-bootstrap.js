@@ -506,6 +506,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Si estamos dentro de Laraigo, adaptar diseño para que sea ultra-cómodo
   if (isLaraigoDock) {
     document.body.classList.add('is-laraigo-embedded');
+  } else if (window.self === window.top && !window.location.search.includes('fullscreen')) {
+    document.body.classList.add('is-extension-popup');
+  }
 
     // Añadir botón "Pegar en Laraigo" en la sección de plantilla generada
     const btnCopy = document.getElementById('btnCopy');

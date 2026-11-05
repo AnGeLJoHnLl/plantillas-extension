@@ -15,35 +15,6 @@
 </head>
 <body>
 
-  <!-- ═══ MODAL DE AUTENTICACIÓN CIFRADA ═══ -->
-  <div id="authModal" class="auth-modal-overlay">
-    <div class="auth-card" id="authCard">
-      <div class="auth-gengar-wrap" id="authGengarWrap">
-        <img src="gengar-lock.gif" alt="Gengar" class="auth-gengar-gif" id="authGengarGif" />
-      </div>
-      <h2 class="auth-title" id="authTitle">Acceso Protegido</h2>
-      
-      <!-- Barra de progreso animada para carga -->
-      <div id="authLoadingBar" class="auth-loading-bar hidden">
-        <div class="auth-loading-progress" id="authLoadingProgress"></div>
-      </div>
-      <p id="authSubtitle" class="auth-subtitle hidden"></p>
-      
-      <form id="authForm" onsubmit="event.preventDefault(); intentarLogin();" class="auth-form-compact">
-        <div class="auth-pass-wrap">
-          <input type="password" id="authPassInput" placeholder="Contraseña..." autocomplete="current-password" autofocus />
-          <button type="button" class="auth-eye-btn" data-onclick="toggleAuthPassEye()" title="Ver contraseña">👁</button>
-        </div>
-        
-        <div id="authFeedback" class="auth-feedback hidden"></div>
-        
-        <button type="submit" id="btnAuthSubmit" class="btn-auth-submit">
-          <span>Ingresar</span>
-        </button>
-      </form>
-    </div>
-  </div>
-
   <!-- ═══ HEADER ═══ -->
   <header class="app-header">
     <div class="header-inner">
