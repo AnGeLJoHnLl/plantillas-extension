@@ -477,11 +477,32 @@
               </div>
             </div>
             <div class="ocr-body">
+              <!-- Botones de Acción de Página (Escanear imagen abierta en Laraigo / Seleccionar con clic) -->
+              <div class="ocr-page-actions-row">
+                <button type="button" id="btnScanPageImg" class="btn-scan-page" title="Detecta y escanea automáticamente la imagen que esté abierta grande en la página">
+                  📸 Escanear Imagen de la Página
+                </button>
+                <button type="button" id="btnPickPageImg" class="btn-pick-page" title="Te permite hacer clic directamente sobre cualquier imagen en la página para escanearla">
+                  🎯 Elegir con Clic
+                </button>
+              </div>
+
+              <!-- Selector de Motor OCR (Local vs Nube) -->
+              <div class="ocr-engine-bar">
+                <span class="ocr-engine-label">Motor:</span>
+                <button type="button" id="btnEngineLocal" class="ocr-engine-pill active" title="Tesseract.js OCR local 100% offline, sin límites ni caídas">
+                  💻 Local (Sin Internet)
+                </button>
+                <button type="button" id="btnEngineCloud" class="ocr-engine-pill" title="Servidor OCR.Space Cloud">
+                  ☁️ Nube
+                </button>
+              </div>
+
               <div id="dropzoneOCR" class="dropzone-simple active" data-onclick="document.getElementById('fileInputOCR').click()">
                 <div class="ocr-scan-frame-icon">
                   <i class="fa-solid fa-crop-simple"></i>
                 </div>
-                <span class="ocr-dropzone-label">Pega o Arrastra tu imagen</span>
+                <span class="ocr-dropzone-label">Pega (Ctrl+V) o Arrastra tu imagen</span>
                 <input type="file" id="fileInputOCR" accept="image/*" style="display:none;" />
               </div>
 
@@ -491,19 +512,39 @@
 
               <div id="cropperToolbarOCR" class="cropper-toolbar-simple hidden">
                 <div class="cropper-hint-text">
-                  🖱️ <strong>Clic Izquierdo:</strong> Subrayar &nbsp;|&nbsp; <strong>Clic Derecho:</strong> Mover imagen &nbsp;|&nbsp; <strong>Rueda:</strong> Zoom
+                  🖱️ <strong>Clic Izquierdo:</strong> Recortar &nbsp;|&nbsp; <strong>Clic Derecho:</strong> Mover &nbsp;|&nbsp; <strong>Rueda:</strong> Zoom
                 </div>
                 <div class="cropper-btns-row">
-                  <button type="button" id="btnExtractTextOCR" class="btn-sm-primary" title="Escanear la zona seleccionada">
-                    <i class="fa-solid fa-bolt"></i> Escanear Recorte
+                  <button type="button" id="btnExtractTextOCR" class="btn-sm-primary" title="Escanear y llenar los campos de la SOT">
+                    <i class="fa-solid fa-bolt"></i> Escanear y Llenar Datos
                   </button>
-                  <button type="button" id="btnRemoveImageOCR" data-onclick="clearOCRImage()" class="btn-sm-danger" title="Eliminar la foto actual">
-                    🗑️ Borrar Imagen
+                  <button type="button" id="btnRemoveImageOCR" data-onclick="clearOCRImage()" class="btn-sm-danger" title="Eliminar foto actual">
+                    🗑️ Borrar
                   </button>
                 </div>
               </div>
 
-              <textarea id="ocrOutputSimple" class="ocr-output-ta" rows="3" readonly placeholder="El texto escaneado de tu recorte aparecerá aquí..."></textarea>
+              <!-- Barra de Progreso del OCR Local -->
+              <div id="ocrProgressWrap" class="ocr-progress-wrap hidden">
+                <div class="ocr-progress-header">
+                  <span id="ocrProgressText">Cargando motor OCR local...</span>
+                  <span id="ocrProgressPct">0%</span>
+                </div>
+                <div class="ocr-progress-bar-bg">
+                  <div id="ocrProgressBar" class="ocr-progress-bar-fill" style="width:0%;"></div>
+                </div>
+              </div>
+
+              <!-- Tarjeta de Datos Detectados e Insertados -->
+              <div id="ocrDetectedCard" class="ocr-detected-card hidden">
+                <div class="ocr-detected-header">
+                  <span class="ocr-detected-title">✨ Datos Detectados y Cargados en la SOT:</span>
+                  <button type="button" id="btnReapplyData" class="btn-reapply-sm" title="Re-aplicar estos datos a los campos de la SOT">⚡ Re-aplicar</button>
+                </div>
+                <div class="ocr-chips-grid" id="ocrChipsGrid"></div>
+              </div>
+
+              <textarea id="ocrOutputSimple" class="ocr-output-ta" rows="2" readonly placeholder="El texto en bruto escaneado aparecerá aquí..."></textarea>
               
               <button type="button" id="btnCopyOCRText" class="btn-copy-ocr-main" data-onclick="copyOCRResultText()">
                 📋 Copiar Texto Escaneado
@@ -819,6 +860,7 @@
   </div>
 
   <!-- Scripts -->
+  <script src="lib/tesseract.min.js"></script>
   <script src="app.js"></script>
   <script src="cropper.min.js"></script>
   <script src="ocr-extension.js"></script>

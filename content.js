@@ -1,6 +1,7 @@
 /* ════════════════════════════════════════════════════════════════
    HITSS Tickets — Content Script para Laraigo
    Integración pulcra: Botón flotante, drawer e inserción en chat
+   + Captura y Escaneo Directo de Imágenes de la Página (OCR)
    ════════════════════════════════════════════════════════════════ */
 
 (function () {
@@ -119,9 +120,9 @@
       });
     }
 
-    // Cerrar al pulsar Escape
+    // Cerrar al pulsar Escape cuando no esté activo el selector de imágenes
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && panelWrapper.classList.contains('is-open')) {
+      if (e.key === 'Escape' && panelWrapper.classList.contains('is-open') && !isPickerActive) {
         closeDrawer();
       }
     });
@@ -157,19 +158,225 @@
     });
   }
 
-  // 4. Mensajería bidireccional con el Iframe (PostMessage)
+  // ════════════════════════════════════════════════════════════════
+  // 4. CAPTURA INTELIGENTE DE IMÁGENES DE PÁGINA (OCR SCANNER)
+  // ════════════════════════════════════════════════════════════════
+  let isPickerActive = false;
+  let pickerBanner = null;
+
+  function findActiveOrLargestImage() {
+    // 1. Prioridad: Buscar imágenes en modales, previsualizaciones, lightboxes o zoom
+    const modalSelectors = [
+      '[role="dialog"] img',
+      '.modal img',
+      '.image-preview img',
+      '.preview img',
+      '.lightbox img',
+      '.viewer img',
+      '.ant-modal img',
+      '.el-dialog img',
+      'div[class*="preview" i] img',
+      'div[class*="modal" i] img',
+      'div[class*="dialog" i] img',
+      'div[class*="lightbox" i] img',
+      'div[class*="zoom" i] img',
+      'div[class*="overlay" i] img'
+    ];
+
+    for (const sel of modalSelectors) {
+      const imgs = document.querySelectorAll(sel);
+      for (const img of imgs) {
+        if (isElementVisible(img) && (img.naturalWidth > 120 || img.offsetWidth > 120)) {
+          return img;
+        }
+      }
+    }
+
+    // 2. Buscar la imagen visible más grande en pantalla (excluyendo el iframe de nuestra extensión)
+    const allImgs = Array.from(document.querySelectorAll('img'));
+    let bestImg = null;
+    let maxArea = 0;
+
+    for (const img of allImgs) {
+      if (img.closest('#hitss-laraigo-panel-wrapper') || img.closest('#hitss-laraigo-fab')) continue;
+      if (!isElementVisible(img)) continue;
+
+      const rect = img.getBoundingClientRect();
+      const area = rect.width * rect.height;
+
+      // Descartar avatares e íconos pequeños
+      if (area > 20000 && rect.width >= 160 && rect.height >= 100) {
+        if (area > maxArea) {
+          maxArea = area;
+          bestImg = img;
+        }
+      }
+    }
+
+    return bestImg;
+  }
+
+  async function imageElementToDataUrl(img) {
+    if (!img) return null;
+
+    // Intentar 1: Canvas directo
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || img.width || 800;
+      canvas.height = img.naturalHeight || img.height || 600;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      return canvas.toDataURL('image/png');
+    } catch (canvasErr) {
+      console.warn('Canvas directo falló por CORS, intentando fetch de imagen:', canvasErr);
+    }
+
+    // Intentar 2: Fetch Blob (útil para URLs remotas de Laraigo o CDN)
+    try {
+      const res = await fetch(img.src, { mode: 'cors' });
+      const blob = await res.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => resolve(img.src);
+        reader.readAsDataURL(blob);
+      });
+    } catch (fetchErr) {
+      console.warn('Fetch blob falló, devolviendo src directo:', fetchErr);
+      return img.src;
+    }
+  }
+
+  function startImagePicker() {
+    if (isPickerActive) return;
+    isPickerActive = true;
+    document.body.classList.add('hitss-picker-active');
+
+    if (!pickerBanner) {
+      pickerBanner = document.createElement('div');
+      pickerBanner.id = 'hitss-picker-banner';
+      pickerBanner.innerHTML = `
+        <span>🎯 <strong>Modo Selector:</strong> Haz clic en la imagen que deseas escanear</span>
+        <button type="button" class="banner-close" title="Cancelar selector (Esc)">✕</button>
+      `;
+      document.body.appendChild(pickerBanner);
+
+      pickerBanner.querySelector('.banner-close').addEventListener('click', stopImagePicker);
+    } else {
+      pickerBanner.style.display = 'flex';
+    }
+
+    document.addEventListener('mouseover', onPickerMouseOver, true);
+    document.addEventListener('mouseout', onPickerMouseOut, true);
+    document.addEventListener('click', onPickerClick, true);
+    window.addEventListener('keydown', onPickerKeyDown, true);
+
+    showInjectedToast('🎯 Pasa el ratón sobre cualquier imagen y haz clic para escanear');
+  }
+
+  function stopImagePicker() {
+    isPickerActive = false;
+    document.body.classList.remove('hitss-picker-active');
+
+    if (pickerBanner) {
+      pickerBanner.style.display = 'none';
+    }
+
+    document.querySelectorAll('img.hitss-picker-highlight').forEach(img => {
+      img.classList.remove('hitss-picker-highlight');
+    });
+
+    document.removeEventListener('mouseover', onPickerMouseOver, true);
+    document.removeEventListener('mouseout', onPickerMouseOut, true);
+    document.removeEventListener('click', onPickerClick, true);
+    window.removeEventListener('keydown', onPickerKeyDown, true);
+  }
+
+  function onPickerMouseOver(e) {
+    if (!isPickerActive) return;
+    const target = e.target;
+    if (target && target.tagName === 'IMG' && !target.closest('#hitss-laraigo-panel-wrapper')) {
+      target.classList.add('hitss-picker-highlight');
+    }
+  }
+
+  function onPickerMouseOut(e) {
+    const target = e.target;
+    if (target && target.tagName === 'IMG') {
+      target.classList.remove('hitss-picker-highlight');
+    }
+  }
+
+  async function onPickerClick(e) {
+    if (!isPickerActive) return;
+    const target = e.target;
+
+    // Permitir clic en el botón cerrar del banner
+    if (target && target.closest('#hitss-picker-banner')) return;
+
+    if (target && target.tagName === 'IMG' && !target.closest('#hitss-laraigo-panel-wrapper')) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      stopImagePicker();
+      showInjectedToast('⏳ Procesando imagen seleccionada...');
+
+      const dataUrl = await imageElementToDataUrl(target);
+      sendImageToExtension(dataUrl, true);
+      openDrawer();
+    }
+  }
+
+  function onPickerKeyDown(e) {
+    if (e.key === 'Escape' && isPickerActive) {
+      e.preventDefault();
+      e.stopPropagation();
+      stopImagePicker();
+      showInjectedToast('Modo selector cancelado');
+    }
+  }
+
+  function sendImageToExtension(dataUrl, autoScan = true) {
+    if (!dataUrl) return;
+
+    if (panelIframe && panelIframe.contentWindow) {
+      panelIframe.contentWindow.postMessage({
+        type: 'HITSS_LOAD_OCR_IMAGE',
+        dataUrl,
+        autoScan
+      }, '*');
+      openDrawer();
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 5. MENSAJERÍA BIDIRECCIONAL CON EL IFRAME
+  // ════════════════════════════════════════════════════════════════
   function listenMessagesFromIframe() {
-    // Escuchar mensajes internos de la extensión
+    // Escuchar mensajes internos de la extensión (popup / background)
     if (chrome && chrome.runtime && chrome.runtime.onMessage) {
       chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        if (message && message.action === 'TOGGLE_HITSS_DRAWER') {
+        if (!message) return;
+
+        if (message.action === 'TOGGLE_HITSS_DRAWER') {
           toggleDrawer();
           sendResponse({ status: 'ok' });
+        } else if (message.action === 'SCAN_ACTIVE_PAGE_IMAGE') {
+          const img = findActiveOrLargestImage();
+          if (img) {
+            imageElementToDataUrl(img).then(dataUrl => {
+              sendResponse({ status: 'ok', dataUrl });
+            });
+            return true; // async sendResponse
+          } else {
+            sendResponse({ status: 'not_found' });
+          }
         }
       });
     }
 
-    window.addEventListener('message', (event) => {
+    // Escuchar mensajes desde el Iframe de la extensión
+    window.addEventListener('message', async (event) => {
       if (!event.data || typeof event.data !== 'object') return;
 
       switch (event.data.type) {
@@ -184,11 +391,30 @@
         case 'HITSS_SHOW_TOAST':
           showInjectedToast(event.data.message || 'Acción completada');
           break;
+
+        case 'HITSS_SCAN_PAGE_IMAGE': {
+          const img = findActiveOrLargestImage();
+          if (img) {
+            showInjectedToast('📸 Imagen grande detectada en la página. Cargando...');
+            const dataUrl = await imageElementToDataUrl(img);
+            sendImageToExtension(dataUrl, true);
+          } else {
+            showInjectedToast('⚠️ No se detectó imagen abierta grande. Elige la imagen con un clic:');
+            startImagePicker();
+          }
+          break;
+        }
+
+        case 'HITSS_START_PICKER':
+          startImagePicker();
+          break;
       }
     });
   }
 
-  // 5. Inserción Inteligente en el Chat de Laraigo
+  // ════════════════════════════════════════════════════════════════
+  // 6. INSERCIÓN INTELIGENTE EN EL CHAT DE LARAIGO
+  // ════════════════════════════════════════════════════════════════
   function handleInsertIntoChat(text) {
     if (!text) return;
 
@@ -203,11 +429,9 @@
         const end = targetInput.selectionEnd || 0;
         const currentVal = targetInput.value || '';
         
-        // Si ya hay texto, lo agrega o reemplaza
         targetInput.value = currentVal.substring(0, start) + text + currentVal.substring(end);
         targetInput.selectionStart = targetInput.selectionEnd = start + text.length;
 
-        // Disparar eventos para frameworks React / Vue / Angular de Laraigo
         targetInput.dispatchEvent(new Event('input', { bubbles: true }));
         targetInput.dispatchEvent(new Event('change', { bubbles: true }));
       } 
@@ -219,7 +443,6 @@
 
       showInjectedToast('✅ ¡Plantilla insertada en el chat de Laraigo!');
     } else {
-      // Si no encuentra la caja de texto abierta, copia al portapapeles
       navigator.clipboard.writeText(text).then(() => {
         showInjectedToast('📋 Plantilla copiada al portapapeles (abre un chat para pegar)');
       }).catch(() => {
@@ -228,15 +451,12 @@
     }
   }
 
-  // Localizador inteligente de caja de texto activa en Laraigo
   function findLaraigoChatInput() {
-    // 1. Elemento actualmente enfocado si es un campo de texto
     const active = document.activeElement;
     if (active && (active.tagName === 'TEXTAREA' || active.isContentEditable)) {
       return active;
     }
 
-    // 2. Selectores habituales de cajas de mensaje en plataformas omnicanal
     const selectors = [
       'textarea[placeholder*="mensaje" i]',
       'textarea[placeholder*="message" i]',
@@ -268,7 +488,7 @@
     return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0' && el.offsetHeight > 0;
   }
 
-  // 6. Toast flotante en Laraigo
+  // 7. Toast flotante en Laraigo
   let toastEl = null;
   let toastTimeout = null;
 

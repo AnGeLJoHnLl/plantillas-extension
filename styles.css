@@ -495,23 +495,15 @@ body {
 .ql-items {
   display: flex; align-items: center; gap: 0.35rem;
   flex-wrap: nowrap; overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
   padding: 4px 0;
   scroll-behavior: smooth;
 }
 .ql-items::-webkit-scrollbar {
-  height: 3px;
-}
-.ql-items::-webkit-scrollbar-track {
-  background: transparent;
-}
-.ql-items::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 3px;
-}
-.ql-items::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.45);
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Cascada de entrada suave para los enlaces */
@@ -4900,3 +4892,302 @@ body.is-extension-popup .xmas-santa-img {
 
 
 
+
+/* ════════════════════════════════════════════════════════════════
+   HITSS OCR V1.1 — ESCÁNER LOCAL TESSERACT & CAPTURA DE PÁGINA
+   ════════════════════════════════════════════════════════════════ */
+.ocr-page-actions-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.btn-scan-page {
+  flex: 1.2;
+  background: linear-gradient(135deg, #06b6d4, #0284c7);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.btn-scan-page:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.45);
+  background: linear-gradient(135deg, #0891b2, #0369a1);
+}
+.btn-pick-page {
+  flex: 0.8;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.btn-pick-page:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.ocr-engine-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  padding: 3px 6px;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 6px;
+}
+.ocr-engine-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.ocr-engine-pill {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ocr-engine-pill.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 1px 6px var(--accent-glow);
+}
+
+.ocr-progress-wrap {
+  margin: 6px 0;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.ocr-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent2);
+  margin-bottom: 4px;
+}
+.ocr-progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ocr-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #06b6d4, #10b981);
+  border-radius: 3px;
+  transition: width 0.25s ease;
+}
+
+.ocr-detected-card {
+  margin: 8px 0;
+  padding: 8px 10px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1.5px solid rgba(16, 185, 129, 0.35);
+  border-radius: 8px;
+}
+.ocr-detected-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.ocr-detected-title {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #34d399;
+}
+.btn-reapply-sm {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-reapply-sm:hover {
+  background: rgba(16, 185, 129, 0.35);
+}
+.ocr-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.ocr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: #f1f5f9;
+}
+.ocr-chip-lbl {
+  color: #94a3b8;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+}
+.ocr-chip-val {
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+/* Rediseño Limpio y Compacto en Modo Laraigo / Pantallas Estrechas */
+body.is-laraigo-embedded .sidebar-bottom,
+@media (max-width: 700px) {
+  .sidebar-bottom {
+    display: none !important;
+  }
+  .sidebar {
+    max-height: 85px !important;
+    height: auto !important;
+  }
+  .sections-list {
+    max-height: 52px !important;
+    padding: 0.3rem 0.5rem !important;
+  }
+}
+
+body.is-laraigo-embedded .sidebar-bottom {
+  display: none !important;
+}
+body.is-laraigo-embedded .sidebar {
+  max-height: 85px !important;
+}
+body.is-laraigo-embedded .sections-list {
+  max-height: 52px !important;
+}
+
+/* Botones de tema ultra-compactos para que no desborden ni tapen la barra */
+body.is-laraigo-embedded .hw-btn-label,
+body.is-laraigo-embedded .xmas-btn-label,
+@media (max-width: 768px) {
+  .hw-btn-label,
+  .xmas-btn-label {
+    display: none !important;
+  }
+}
+
+body.is-laraigo-embedded .btn-quick-halloween,
+body.is-laraigo-embedded .btn-quick-xmas {
+  padding: 2px 6px !important;
+  border-radius: 8px !important;
+  height: 22px !important;
+  font-size: 0.72rem !important;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TABS SOT COMPACTAS EN MODO HORIZONTAL / EXTENSION LARAIGO
+   ════════════════════════════════════════════════════════════════ */
+body.is-laraigo-embedded .sot-card-item,
+@media (max-width: 700px) {
+  .sot-card-item {
+    flex-shrink: 0 !important;
+    min-width: 125px !important;
+    max-width: 155px !important;
+    padding: 4px 8px !important;
+    gap: 6px !important;
+    height: 38px !important;
+    transform: none !important;
+  }
+  .sot-card-item:hover,
+  .sot-card-item.active {
+    transform: none !important;
+  }
+  .sot-card-icon-wrap {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 0.82rem !important;
+  }
+  .sot-card-title {
+    font-size: 0.73rem !important;
+    font-weight: 700 !important;
+  }
+  .sot-card-status-row,
+  .sot-card-bottom-row {
+    display: none !important;
+  }
+  .sidebar-top {
+    padding: 4px 8px !important;
+    margin-bottom: 2px !important;
+  }
+  .sidebar-title {
+    font-size: 0.72rem !important;
+  }
+}
+
+body.is-laraigo-embedded .sot-card-item {
+  flex-shrink: 0 !important;
+  min-width: 125px !important;
+  max-width: 155px !important;
+  padding: 4px 8px !important;
+  gap: 6px !important;
+  height: 38px !important;
+  transform: none !important;
+}
+body.is-laraigo-embedded .sot-card-icon-wrap {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 0.82rem !important;
+}
+body.is-laraigo-embedded .sot-card-title {
+  font-size: 0.73rem !important;
+  font-weight: 700 !important;
+}
+body.is-laraigo-embedded .sot-card-status-row,
+body.is-laraigo-embedded .sot-card-bottom-row {
+  display: none !important;
+}
+body.is-laraigo-embedded .sidebar-top {
+  padding: 4px 8px !important;
+  margin-bottom: 2px !important;
+}
+
+@media (max-width: 1050px) {
+  .hw-btn-label,
+  .xmas-btn-label {
+    display: none !important;
+  }
+  .btn-quick-halloween,
+  .btn-quick-xmas {
+    padding: 2px 6px !important;
+    border-radius: 8px !important;
+    height: 22px !important;
+    font-size: 0.72rem !important;
+  }
+  .btn-theme-dropdown {
+    padding: 2px 5px !important;
+    height: 22px !important;
+  }
+}
